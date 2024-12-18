@@ -8,11 +8,13 @@ import SwiftUI
 import MapKit
 
 struct ContainerView: View {
-    @State private var selectedTab: Tab = .profile
+    @State private var selectedTab: Tab = .trip
+    @State private var isInTripInfo: Bool = false
+    @StateObject private var tripViewModel = TripViewModel()
 
     // Enum for tabs
     enum Tab {
-        case trip, alert, map, profile
+        case trip, favourites, map, profile
     }
 
     var body: some View {
@@ -20,9 +22,9 @@ struct ContainerView: View {
             // Show content based on selected tab
             switch selectedTab {
             case .trip:
-                TripView()
-            case .alert:
-                AlertView()
+                TripView(isInTripInfo: $isInTripInfo, viewModel: tripViewModel)
+            case .favourites:
+                FavoriteView(viewModel: tripViewModel)
             case .map:
                 MapView()
             case .profile:
@@ -30,44 +32,48 @@ struct ContainerView: View {
             }
 
             // Custom Tab Bar
-            VStack {
-                Spacer()
-
-                HStack {
-                    // Trip Tab
-                    TabBarButton(icon: "airplane", isSelected: selectedTab == .trip) {
-                        selectedTab = .trip
-                    }
-
+            if !isInTripInfo {
+                VStack {
                     Spacer()
+                    
+                    // Tab Bar Background
+                    HStack {
+                        // Trip Tab
+                        TabBarButton(icon: "airplane", isSelected: selectedTab == .trip) {
+                            selectedTab = .trip
+                        }
 
-                    // Alert Tab
-                    TabBarButton(icon: "bell", isSelected: selectedTab == .alert) {
-                        selectedTab = .alert
+                        Spacer()
+
+                        // Alert Tab
+                        TabBarButton(icon: "heart", isSelected: selectedTab == .favourites) {
+                            selectedTab = .favourites
+                        }
+
+                        Spacer()
+
+                        // Map Tab
+                        TabBarButton(icon: "map", isSelected: selectedTab == .map) {
+                            selectedTab = .map
+                        }
+
+                        Spacer()
+
+                        // Profile Tab
+                        TabBarButton(icon: "person", isSelected: selectedTab == .profile) {
+                            selectedTab = .profile
+                        }
                     }
-
-                    Spacer()
-
-                    // Map Tab
-                    TabBarButton(icon: "map", isSelected: selectedTab == .map) {
-                        selectedTab = .map
-                    }
-
-                    Spacer()
-
-                    // Profile Tab
-                    TabBarButton(icon: "person", isSelected: selectedTab == .profile) {
-                        selectedTab = .profile
-                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 25)
+                            .fill(Color.white)
+                            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+                    )
+                    .padding(.horizontal)
+                    .padding(.bottom, 8) // Add some bottom padding
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
-                .background(
-                    RoundedRectangle(cornerRadius: 25)
-                        .fill(Color.white)
-                        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
-                )
-                .padding(.horizontal)
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
